@@ -3,10 +3,7 @@ from snakemake.utils import validate
 
 report: "report/workflow.rst"
 
-###### Config file and sample sheets #####
-configfile: "config.yaml"
-validate(config, schema="schemas/config.schema.yaml")
-
+###### Sample sheets #####
 samples = pd.read_table(config["samples"]).set_index("sample", drop=False)
 validate(samples, schema="schemas/samples.schema.yaml")
 
@@ -104,7 +101,7 @@ def get_recal_input(bai=False):
 rule all:
     input:
 #        "annotated/all.vcf.gz",
-        "qc/multiqc.html",
+        "%s/qc/multiqc.html" % (config["project-folder"]),
 #        "plots/depths.svg",
 #        "plots/allele-freqs.svg"
 

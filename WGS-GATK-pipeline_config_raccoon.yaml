@@ -1,5 +1,6 @@
 samples: samples_raccoon.tsv
 units: units_raccoon.tsv
+project-folder: "/scratch/project_2001746/RaccoonGATK"
 
 ref:
   name: VulVul2.2
