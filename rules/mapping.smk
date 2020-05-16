@@ -4,18 +4,39 @@ rule trim_reads:
     output: 
         r1=temp("%s/trimmed/{sample}.1.fastq.gz") % (config["project-folder"]),
         r2=temp("%s/trimmed/{sample}.2.fastq.gz") % (config["project-folder"]),
-        r1_unpaired=temp("%s/trimmed/{sample}.1.unpaired.fastq.gz") % (config["project-folder"]),
-        r2_unpaired=temp("%s/trimmed/{sample}.2.unpaired.fastq.gz") % (config["project-folder"]),
+        unpaired="%s/trimmed/{sample}.final.pe_se.fastq.gz"% (config["project-folder"]),
         trimlog="%s/trimmed/{sample}.trimlog.txt" % (config["project-folder"])
     params:
-        extra=lambda w, output: "-trimlog {}".format(output.trimlog),
-        **config["params"]["trimmomatic"]["pe"]
+        r1_unpaired=temp("%s/trimmed/{sample}.1.unpaired.fastq.gz") % (config["project-folder"]),
+        r2_unpaired=temp("%s/trimmed/{sample}.2.unpaired.fastq.gz") % (config["project-folder"])
     log:
         "%s/logs/trimmomatic/{sample}.log" % (config["project-folder"])
-    wrapper:
-        "0.30.0/bio/trimmomatic/pe"
-
-
+    threads:
+        lambda cores: cpu_count()
+    conda:
+        "../envs/mapping.yaml"
+    shell:
+        """
+        trimmomatic PE \
+            -threads {threads} \
+            -trimlog {output.trimlog} \
+            <(gzip -dc {input.r1} ) \
+            <(gzip -dc {input.r2} ) \
+            >(cut -f 1 -d " " | gzip -9 > {output.r1} ) \
+            {params.r1_unpaired} \
+            >(cut -f 1 -d " " | gzip -9 > {output.r2} ) \
+            {params.r2_unpaired} \
+            ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10 \
+            LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36 \
+            2> {log}
+            
+        zcat {params.r1_unpaired} {params.r2_unpaired} |
+        cut -f 1 -d " " |
+        gzip -9 > {output.unpaired}
+        
+        rm {params.r1_unpaired} {params.r2_unpaired}
+        """
+        
 rule map_reads:
     input:
         reads=get_trimmed_reads

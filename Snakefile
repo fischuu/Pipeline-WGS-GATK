@@ -1,5 +1,6 @@
 import pandas as pd
 from snakemake.utils import validate
+from multiprocessing import cpu_count
 
 report: "report/workflow.rst"
 
