@@ -36,10 +36,30 @@ rule trim_reads:
         
         rm {params.r1_unpaired} {params.r2_unpaired}
         """
+
+rule bwa_create_index:
+        """
+        Index the Reference Genome (BWA).
+        """
+        input:
+            "%s" % (config["ref"]["genome"])
+        output:
+            "%s" % (config["ref"]["genome-bwa-index"])
+        log:
+            "%s/logs/bwa-IndexReferenceGenome.log" % (config["project-folder"])
+        benchmark:
+            "%s/benchmark/bwaIndexReferenceGenome.benchmark.tsv" % (config["project-folder"])
+        threads: lambda cores: cpu_count()
+        shell:"""
+            echo "Number of threads used:" {threads}
+            bwa index -a bwtsw {input} 2> {log}
+                samtools faidx {input} 2> {log}
+      	"""  
         
 rule map_reads:
     input:
-        reads=get_trimmed_reads
+        reads=get_trimmed_reads,
+        index="%s" % (config["ref"]["genome-bwa-index"])
     output:
         temp("%s/mapped/{sample}.sorted.bam" % (config["project-folder"]))
     log:

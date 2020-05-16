@@ -6,6 +6,7 @@ ref:
   name: VulVul2.2
   # Path to the reference genome, ideally as it is provided by the GATK bundle.
   genome: ../reference/Vulpes_vulpes.VulVul2.2.dna.toplevel.fa
+  genome-bwa-index: ../reference/Vulpes_vulpes.VulVul2.2.dna.toplevel.fa.bwt
   # Path to any database of known variants, ideally as it is provided by the GATK bundle.
   known-variants: ../reference/knownSNP.vcf
 
