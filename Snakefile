@@ -4,39 +4,28 @@ from snakemake.utils import validate
 report: "report/workflow.rst"
 
 ###### Sample sheets #####
-samples = pd.read_table(config["samples"]).set_index("sample", drop=False)
-validate(samples, schema="schemas/samples.schema.yaml")
+#samples = pd.read_table(config["samples"]).set_index("sample", drop=False)
+sampleList= pd.read_table(config["samples"], header=None)[0].tolist()
 
 units = pd.read_table(config["units"], dtype=str).set_index(["sample", "unit"], drop=False)
-units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
-validate(units, schema="schemas/units.schema.yaml")
+#units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
+#validate(units, schema="schemas/units.schema.yaml")
 
 # contigs in reference genome
 contigs = pd.read_table(config["ref"]["genome"] + ".fai",
                         header=None, usecols=[0], squeeze=True, dtype=str)
 
-
 ##### Wildcard constraints #####
 wildcard_constraints:
     vartype="snvs|indels",
-    sample="|".join(samples.index),
-    unit="|".join(units["unit"]),
-    contig="|".join(contigs)
-
+    sample="|".join(sampleList)
 
 ##### Helper functions #####
 
 def get_fastq(wildcards):
-    """Get fastq files of given sample-unit."""
-    fastqs = units.loc[(wildcards.sample, wildcards.unit), ["fq1", "fq2"]].dropna()
-    if len(fastqs) == 2:
-        return {"r1": fastqs.fq1, "r2": fastqs.fq2}
-    return {"r1": fastqs.fq1}
-
-
-def is_single_end(sample, unit):
-    """Return True if sample-unit is single end."""
-    return pd.isnull(units.loc[(sample, unit), "fq2"])
+    """Get fastq files of given sample."""
+    fastqs = units.loc[(wildcards.sample), ["fq1", "fq2"]].dropna()
+    return {"r1": fastqs.fq1, "r2": fastqs.fq2}
 
 
 def get_read_group(wildcards):
@@ -47,20 +36,14 @@ def get_read_group(wildcards):
 
 
 def get_trimmed_reads(wildcards):
-    """Get trimmed reads of given sample-unit."""
-    if not is_single_end(**wildcards):
-        # paired-end sample
-        return expand("trimmed/{sample}-{unit}.{group}.fastq.gz",
+    """Get trimmed reads of given sample."""
+    return expand("%s/trimmed/{sample}.{group}.fastq.gz" % (config["project-folder"]),
                       group=[1, 2], **wildcards)
-    # single end sample
-    return "trimmed/{sample}-{unit}.fastq.gz".format(**wildcards)
-
 
 def get_sample_bams(wildcards):
     """Get all aligned reads of given sample."""
-    return expand("recal/{sample}-{unit}.bam",
-                  sample=wildcards.sample,
-                  unit=units.loc[wildcards.sample].unit)
+    return expand("%s/recal/{sample}.bam" % (config["project-folder"]),
+                  sample=wildcards.sample)
 
 
 def get_regions_param(regions=config["processing"].get("restrict-regions"), default=""):
@@ -80,10 +63,10 @@ def get_call_variants_params(wildcards, input):
 
 def get_recal_input(bai=False):
     # case 1: no duplicate removal
-    f = "mapped/{sample}-{unit}.sorted.bam"
+    f = "%s/mapped/{sample}.sorted.bam" % (config["project-folder"])
     if config["processing"]["remove-duplicates"]:
         # case 2: remove duplicates
-        f = "dedup/{sample}-{unit}.bam"
+        f = "%s/dedup/{sample}.bam" % (config["project-folder"])
     if bai:
         if config["processing"].get("restrict-regions"):
             # case 3: need an index because random access is required
@@ -100,17 +83,17 @@ def get_recal_input(bai=False):
 
 rule all:
     input:
-#        "annotated/all.vcf.gz",
+        "%s/annotated/all.vcf.gz" % (config["project-folder"]),
         "%s/qc/multiqc.html" % (config["project-folder"]),
-#        "plots/depths.svg",
-#        "plots/allele-freqs.svg"
+        "%s/plots/depths.svg" % (config["project-folder"]),
+        "%s/plots/allele-freqs.svg" % (config["project-folder"])
 
 
 ##### Modules #####
 
-#include: "rules/mapping.smk"
-#include: "rules/calling.smk"
-#include: "rules/filtering.smk"
-#include: "rules/stats.smk"
+include: "rules/mapping.smk"
+include: "rules/calling.smk"
+include: "rules/filtering.smk"
+include: "rules/stats.smk"
 include: "rules/qc.smk"
-#include: "rules/annotation.smk"
+include: "rules/annotation.smk"

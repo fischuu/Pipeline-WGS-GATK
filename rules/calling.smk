@@ -3,7 +3,7 @@ if "restrict-regions" in config["processing"]:
         input:
             config["processing"]["restrict-regions"]
         output:
-            "called/{contig}.regions.bed"
+            "%s/called/{contig}.regions.bed" % (config["project-folder"])
         conda:
             "../envs/bedops.yaml"
         shell:
@@ -13,13 +13,11 @@ if "restrict-regions" in config["processing"]:
 rule call_variants:
     input:
         bam=get_sample_bams,
-        ref=config["ref"]["genome"],
-        known=config["ref"]["known-variants"],
-        regions="called/{contig}.regions.bed" if config["processing"].get("restrict-regions") else []
+        ref=config["ref"]["genome"]
     output:
-        gvcf=protected("called/{sample}.{contig}.g.vcf.gz")
+        gvcf=protected("%s/called/{sample}.g.vcf.gz" % (config["project-folder"]))
     log:
-        "logs/gatk/haplotypecaller/{sample}.{contig}.log"
+        "%s/logs/gatk/haplotypecaller/{sample}.log" % (config["project-folder"])
     params:
         extra=get_call_variants_params
     wrapper:
@@ -29,11 +27,11 @@ rule call_variants:
 rule combine_calls:
     input:
         ref=config["ref"]["genome"],
-        gvcfs=expand("called/{sample}.{{contig}}.g.vcf.gz", sample=samples.index)
+        gvcfs=expand("%s/called/{sample}.g.vcf.gz" % (config["project-folder"]), sample=sampleList)
     output:
-        gvcf="called/all.{contig}.g.vcf.gz"
+        gvcf=temp("%s/called/all.g.vcf.gz" % (config["project-folder"]))
     log:
-        "logs/gatk/combinegvcfs.{contig}.log"
+        "%s/logs/gatk/combinegvcfs.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/combinegvcfs"
 
@@ -41,23 +39,23 @@ rule combine_calls:
 rule genotype_variants:
     input:
         ref=config["ref"]["genome"],
-        gvcf="called/all.{contig}.g.vcf.gz"
+        gvcf="%s/called/all.g.vcf.gz" % (config["project-folder"])
     output:
-        vcf=temp("genotyped/all.{contig}.vcf.gz")
+        vcf="%s/genotyped/all.vcf.gz" % (config["project-folder"])
     params:
         extra=config["params"]["gatk"]["GenotypeGVCFs"]
     log:
-        "logs/gatk/genotypegvcfs.{contig}.log"
+        "%s/logs/gatk/genotypegvcfs.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/genotypegvcfs"
 
 
-rule merge_variants:
-    input:
-        vcf=expand("genotyped/all.{contig}.vcf.gz", contig=contigs)
-    output:
-        vcf="genotyped/all.vcf.gz"
-    log:
-        "logs/picard/merge-genotyped.log"
-    wrapper:
-        "0.27.1/bio/picard/mergevcfs"
+#rule merge_variants:
+#    input:
+#        vcf="%s/genotyped/all.vcf.gz" % (config["project-folder"])
+#    output:
+#        vcf="%s/genotyped/all_merged.vcf.gz" % (config["project-folder"])
+#    log:
+#        "%s/logs/picard/merge-genotyped.log" % (config["project-folder"])
+#    wrapper:
+#        "0.27.1/bio/picard/mergevcfs"

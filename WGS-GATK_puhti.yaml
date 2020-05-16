@@ -29,16 +29,9 @@ multiqc:
     partition: small
     mem-per-cpu: 4000
     cpus-per-task: 12
-    
-trim_reads_se:
-    job-name: trim_se
-    time: 05:00:00
-    partition: small
-    mem-per-cpu: 4000
-    cpus-per-task: 12
-    
-trim_reads_pe:
-    job-name: trim_pe
+
+trim_reads:
+    job-name: trim
     time: 05:00:00
     partition: small
     mem-per-cpu: 4000

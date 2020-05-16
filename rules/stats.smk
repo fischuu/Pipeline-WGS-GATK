@@ -1,8 +1,8 @@
 rule vcf_to_tsv:
     input:
-        "annotated/all.vcf.gz"
+        "%s/annotated/all.vcf.gz" % (config["project-folder"])
     output:
-        report("tables/calls.tsv.gz", caption="../report/calls.rst", category="Calls")
+        report("%s/tables/calls.tsv.gz" % (config["project-folder"]), caption="../report/calls.rst", category="Calls")
     conda:
         "../envs/rbt.yaml"
     shell:
@@ -13,10 +13,10 @@ rule vcf_to_tsv:
 
 rule plot_stats:
     input:
-        "tables/calls.tsv.gz"
+        "%s/tables/calls.tsv.gz" % (config["project-folder"])
     output:
-        depths=report("plots/depths.svg", caption="../report/depths.rst", category="Plots"),
-        freqs=report("plots/allele-freqs.svg", caption="../report/freqs.rst", category="Plots")
+        depths=report("%s/plots/depths.svg" % (config["project-folder"]), caption="../report/depths.rst", category="Plots"),
+        freqs=report("%s/plots/allele-freqs.svg" % (config["project-folder"]), caption="../report/freqs.rst", category="Plots")
     conda:
         "../envs/stats.yaml"
     script:

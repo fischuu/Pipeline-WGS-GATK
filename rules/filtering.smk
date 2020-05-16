@@ -6,13 +6,13 @@ def get_vartype_arg(wildcards):
 rule select_calls:
     input:
         ref=config["ref"]["genome"],
-        vcf="genotyped/all.vcf.gz"
+        vcf="%s/genotyped/all.vcf.gz" % (config["project-folder"])
     output:
-        vcf=temp("filtered/all.{vartype}.vcf.gz")
+        vcf=temp("%s/filtered/all.{vartype}.vcf.gz" % (config["project-folder"]))
     params:
         extra=get_vartype_arg
     log:
-        "logs/gatk/selectvariants/{vartype}.log"
+        "%s/logs/gatk/selectvariants/{vartype}.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/selectvariants"
 
@@ -26,40 +26,40 @@ def get_filter(wildcards):
 rule hard_filter_calls:
     input:
         ref=config["ref"]["genome"],
-        vcf="filtered/all.{vartype}.vcf.gz"
+        vcf="%s/filtered/all.{vartype}.vcf.gz" % (config["project-folder"])
     output:
-        vcf=temp("filtered/all.{vartype}.hardfiltered.vcf.gz")
+        vcf=temp("%s/filtered/all.{vartype}.hardfiltered.vcf.gz" % (config["project-folder"]))
     params:
         filters=get_filter
     log:
-        "logs/gatk/variantfiltration/{vartype}.log"
+        "%s/logs/gatk/variantfiltration/{vartype}.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/variantfiltration"
 
 
 rule recalibrate_calls:
     input:
-        vcf="filtered/all.{vartype}.vcf.gz"
+        vcf="%s/filtered/all.{vartype}.vcf.gz" % (config["project-folder"])
     output:
-        vcf=temp("filtered/all.{vartype}.recalibrated.vcf.gz")
+        vcf=temp("%s/filtered/all.{vartype}.recalibrated.vcf.gz" % (config["project-folder"]))
     params:
         extra=config["params"]["gatk"]["VariantRecalibrator"]
     log:
-        "logs/gatk/variantrecalibrator/{vartype}.log"
+        "%s/logs/gatk/variantrecalibrator/{vartype}.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/variantrecalibrator"
 
 
 rule merge_calls:
     input:
-        vcf=expand("filtered/all.{vartype}.{filtertype}.vcf.gz",
+        vcf=expand("%s/filtered/all.{vartype}.{filtertype}.vcf.gz" % (config["project-folder"]),
                    vartype=["snvs", "indels"],
                    filtertype="recalibrated"
                               if config["filtering"]["vqsr"]
                               else "hardfiltered")
     output:
-        vcf="filtered/all.vcf.gz"
+        vcf="%s/filtered/all.vcf.gz" % (config["project-folder"])
     log:
-        "logs/picard/merge-filtered.log"
+        "%s/logs/picard/merge-filtered.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/picard/mergevcfs"

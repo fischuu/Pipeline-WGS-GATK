@@ -1,31 +1,17 @@
-rule trim_reads_se:
+rule trim_reads:
     input:
         unpack(get_fastq)
-    output:
-        temp("trimmed/{sample}-{unit}.fastq.gz")
-    params:
-        extra="",
-        **config["params"]["trimmomatic"]["se"]
-    log:
-        "logs/trimmomatic/{sample}-{unit}.log"
-    wrapper:
-        "0.30.0/bio/trimmomatic/se"
-
-
-rule trim_reads_pe:
-    input:
-        unpack(get_fastq)
-    output:
-        r1=temp("trimmed/{sample}-{unit}.1.fastq.gz"),
-        r2=temp("trimmed/{sample}-{unit}.2.fastq.gz"),
-        r1_unpaired=temp("trimmed/{sample}-{unit}.1.unpaired.fastq.gz"),
-        r2_unpaired=temp("trimmed/{sample}-{unit}.2.unpaired.fastq.gz"),
-        trimlog="trimmed/{sample}-{unit}.trimlog.txt"
+    output: 
+        r1=temp("%s/trimmed/{sample}.1.fastq.gz") % (config["project-folder"]),
+        r2=temp("%s/trimmed/{sample}.2.fastq.gz") % (config["project-folder"]),
+        r1_unpaired=temp("%s/trimmed/{sample}.1.unpaired.fastq.gz") % (config["project-folder"]),
+        r2_unpaired=temp("%s/trimmed/{sample}.2.unpaired.fastq.gz") % (config["project-folder"]),
+        trimlog="%s/trimmed/{sample}.trimlog.txt" % (config["project-folder"])
     params:
         extra=lambda w, output: "-trimlog {}".format(output.trimlog),
         **config["params"]["trimmomatic"]["pe"]
     log:
-        "logs/trimmomatic/{sample}-{unit}.log"
+        "%s/logs/trimmomatic/{sample}.log" % (config["project-folder"])
     wrapper:
         "0.30.0/bio/trimmomatic/pe"
 
@@ -34,9 +20,9 @@ rule map_reads:
     input:
         reads=get_trimmed_reads
     output:
-        temp("mapped/{sample}-{unit}.sorted.bam")
+        temp("%s/mapped/{sample}.sorted.bam" % (config["project-folder"]))
     log:
-        "logs/bwa_mem/{sample}-{unit}.log"
+        "%s/logs/bwa_mem/{sample}.log" % (config["project-folder"])
     params:
         index=config["ref"]["genome"],
         extra=get_read_group,
@@ -49,12 +35,12 @@ rule map_reads:
 
 rule mark_duplicates:
     input:
-        "mapped/{sample}-{unit}.sorted.bam"
+        "%s/mapped/{sample}.sorted.bam" % (config["project-folder"])
     output:
-        bam=temp("dedup/{sample}-{unit}.bam"),
-        metrics="qc/dedup/{sample}-{unit}.metrics.txt"
+        bam=temp("%s/dedup/{sample}.bam" % (config["project-folder"])) ,
+        metrics="%s/qc/dedup/{sample}.metrics.txt" % (config["project-folder"])
     log:
-        "logs/picard/dedup/{sample}-{unit}.log"
+        "%s/logs/picard/dedup/{sample}.log" % (config["project-folder"])
     params:
         config["params"]["picard"]["MarkDuplicates"]
     wrapper:
@@ -64,15 +50,15 @@ rule mark_duplicates:
 rule recalibrate_base_qualities:
     input:
         bam=get_recal_input(),
-        bai=get_recal_input(bai=True),
+#        bai=get_recal_input(bai=True),
         ref=config["ref"]["genome"],
-        known=config["ref"]["known-variants"]
+#        known=config["ref"]["known-variants"]
     output:
-        bam=protected("recal/{sample}-{unit}.bam")
+        bam=protected("%s/recal/{sample}.bam" % (config["project-folder"]))
     params:
         extra=get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"]
     log:
-        "logs/gatk/bqsr/{sample}-{unit}.log"
+        "%s/logs/gatk/bqsr/{sample}.log" % (config["project-folder"])
     wrapper:
         "0.27.1/bio/gatk/baserecalibrator"
 

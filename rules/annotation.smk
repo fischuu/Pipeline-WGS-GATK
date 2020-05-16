@@ -1,11 +1,11 @@
 rule snpeff:
     input:
-        "filtered/all.vcf.gz",
+        "%s/filtered/all.vcf.gz" % (config["project-folder"]) 
     output:
-        vcf=report("annotated/all.vcf.gz", caption="../report/vcf.rst", category="Calls"),
-        csvstats="snpeff/all.csv"
+        vcf=report("%s/annotated/all.vcf.gz" % (config["project-folder"]), caption="../report/vcf.rst", category="Calls"),
+        csvstats="%s/snpeff/all.csv" % (config["project-folder"])
     log:
-        "logs/snpeff.log"
+        "%s/logs/snpeff.log" % (config["project-folder"])
     params:
         reference=config["ref"]["name"],
         extra="-Xmx6g"
