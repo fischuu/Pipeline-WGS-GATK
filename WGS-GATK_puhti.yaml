@@ -1,0 +1,73 @@
+__default__:
+    time: 03:30:00
+    job-name:  WGS_GATK_Default
+    account: project_2001746
+    cpus-per-task: 12
+    mem-per-cpu: 4000
+    partition: small
+    working-directory: /scratch/project_2001746/RaccoonGATK/logs/
+    
+## QC rules
+
+fastqc:
+    job-name: fastqc
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+    
+samtools_stats:
+    job-name: st_stats
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+
+multiqc:
+    job-name: multiqc
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+    
+trim_reads_se:
+    job-name: trim_se
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+    
+trim_reads_pe:
+    job-name: trim_pe
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+    
+map_reads:
+    job-name: map
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+    
+mark_duplicates:
+    job-name: markdupl
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+
+recalibrate_base_qualities:
+    job-name: recal
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
+
+samtools_index:
+    job-name: index
+    time: 05:00:00
+    partition: small
+    mem-per-cpu: 4000
+    cpus-per-task: 12
