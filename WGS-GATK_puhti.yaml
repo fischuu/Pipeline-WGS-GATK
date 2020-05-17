@@ -5,6 +5,7 @@ __default__:
     cpus-per-task: 12
     mem-per-cpu: 4000
     partition: small
+    nvme: 20
     working-directory: /scratch/project_2001746/RaccoonGATK/logs/
     
 ## QC rules
