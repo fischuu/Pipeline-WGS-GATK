@@ -4,3 +4,4 @@ channels:
 dependencies:
   - trimmomatic ==0.36
   - bwa ==0.7.17
+  - samtools ==1.10
