@@ -57,22 +57,40 @@ rule bwa_create_index:
       	"""  
         
 rule map_reads:
+    """
+    Map and sort the alignment (BWA).
+    """
     input:
         reads=get_trimmed_reads,
         index="%s" % (config["ref"]["genome-bwa-index"])
     output:
-        temp("%s/mapped/{sample}.sorted.bam" % (config["project-folder"]))
+        "%s/mapped/{sample}.sam" % (config["project-folder"])
     log:
         "%s/logs/bwa_mem/{sample}.log" % (config["project-folder"])
     params:
         index=config["ref"]["genome"],
-        extra=get_read_group,
-        sort="samtools",
-        sort_order="coordinate"
-    threads: 8
-    wrapper:
-        "0.27.1/bio/bwa/mem"
-
+        extra=get_read_group
+    threads: lambda cores: cpu_count()
+    conda: "../envs/mapping.yaml"
+    shell:"""
+        bwa mem -t {threads} {params.extra} {params.index} {input.reads} > {output} 2> {log}
+    """
+    
+rule sort_alignment:
+    """
+    Map and sort the alignment (BWA).
+    """
+    input:
+       "%s/mapped/{sample}.sam" % (config["project-folder"])
+    output:
+        "%s/mapped/{sample}.sorted.bam" % (config["project-folder"])
+    log:
+        "%s/logs/samtools/{sample}.log" % (config["project-folder"])
+    threads: lambda cores: cpu_count()
+    conda: "../envs/mapping.yaml"
+    shell:"""
+        samtools sort {input} > {output} 2> {log}
+    """    
 
 rule mark_duplicates:
     input:
