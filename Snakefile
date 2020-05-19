@@ -31,7 +31,7 @@ def get_fastq(wildcards):
 
 def get_read_group(wildcards):
     """Denote sample name and platform in read group."""
-    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:{platform}'".format(
+    return r"-R '@RG\tID:{sample}\tSM:{sample}\tPL:ILLUMINA'".format(
         sample=wildcards.sample,
         platform=units.loc[(wildcards.sample), "platform"])
 
