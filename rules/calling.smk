@@ -13,13 +13,15 @@ if "restrict-regions" in config["processing"]:
 rule call_variants:
     input:
         bam=get_sample_bams,
-        ref=config["ref"]["genome"]
+        ref=config["ref"]["genome"],
+        regions=[]
     output:
         gvcf=protected("%s/called/{sample}.g.vcf.gz" % (config["project-folder"]))
     log:
         "%s/logs/gatk/haplotypecaller/{sample}.log" % (config["project-folder"])
     params:
-        extra=get_call_variants_params
+#        extra=get_call_variants_params
+        extra=[]        
     wrapper:
         "0.27.1/bio/gatk/haplotypecaller"
 

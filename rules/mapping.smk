@@ -109,18 +109,20 @@ rule mark_duplicates:
 rule recalibrate_base_qualities:
     input:
         bam=get_recal_input(),
-#        bai=get_recal_input(bai=True),
-        ref=config["ref"]["genome"],
-#        known=config["ref"]["known-variants"]
+#        bai=[],#get_recal_input(bai=True),
+#        ref=config["ref"]["genome"],
+#        known=[]
     output:
         bam=protected("%s/recal/{sample}.bam" % (config["project-folder"]))
     params:
         extra=get_regions_param() + config["params"]["gatk"]["BaseRecalibrator"]
     log:
         "%s/logs/gatk/bqsr/{sample}.log" % (config["project-folder"])
-    wrapper:
-        "0.27.1/bio/gatk/baserecalibrator"
-
+#    wrapper:
+#        "0.27.1/bio/gatk/baserecalibrator"
+    shell:"""
+      cp {input.bam} {output}
+    """
 
 rule samtools_index:
     input:
