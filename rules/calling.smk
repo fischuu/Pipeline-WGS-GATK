@@ -6,14 +6,28 @@ if "restrict-regions" in config["processing"]:
             "%s/called/{contig}.regions.bed" % (config["project-folder"])
         conda:
             "../envs/bedops.yaml"
-        shell:
+        shell:  
             "bedextract {wildcards.contig} {input} > {output}"
+
+
+rule create_dict_file:
+    input:
+        config["ref"]["genome"]
+    output:
+        config["ref"]["genomeDict"]
+    log:
+        "%s/logs/gatk/createDict/createDict.log" % (config["project-folder"])
+    conda: "../envs/calling.yaml"
+    shell:"""
+        java -jar CreateSequenceDictionary.jar R= {input} O= {output}
+        """
 
 
 rule call_variants:
     input:
         bam=get_sample_bams,
         ref=config["ref"]["genome"],
+        dict=config["ref"]["genomeDict"],
         regions=[]
     output:
         gvcf=protected("%s/called/{sample}.g.vcf.gz" % (config["project-folder"]))
