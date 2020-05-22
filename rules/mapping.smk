@@ -123,11 +123,15 @@ rule recalibrate_base_qualities:
     shell:"""
       cp {input.bam} {output}
     """
-
-rule samtools_index:
+    
+rule index_recalibrated_bams:
     input:
-        "{prefix}.bam"
+        bam=get_sample_bams
     output:
-        "{prefix}.bam.bai"
-    wrapper:
-        "0.27.1/bio/samtools/index"
+        bai="%s/recal/{sample}.bam.bai" % (config["project-folder"])
+    log:
+        "%s/logs/gatk/bqsr/{sample}.log" % (config["project-folder"])
+    conda: "../envs/mapping.yaml"
+    shell:"""
+      samtools index {input.bam} 2> {log}
+    """    

@@ -19,13 +19,14 @@ rule create_dict_file:
         "%s/logs/gatk/createDict/createDict.log" % (config["project-folder"])
     conda: "../envs/calling.yaml"
     shell:"""
-        java -jar CreateSequenceDictionary.jar R= {input} O= {output}
+        picard CreateSequenceDictionary R= {input} O= {output} 2> {log}
         """
 
 
 rule call_variants:
     input:
         bam=get_sample_bams,
+        bai=get_sample_bais,
         ref=config["ref"]["genome"],
         dict=config["ref"]["genomeDict"],
         regions=[]

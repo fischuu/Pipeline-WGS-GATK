@@ -45,7 +45,11 @@ def get_sample_bams(wildcards):
     """Get all aligned reads of given sample."""
     return expand("%s/recal/{sample}.bam" % (config["project-folder"]),
                   sample=wildcards.sample)
-
+                  
+def get_sample_bais(wildcards):
+    """Get all aligned reads of given sample."""
+    return expand("%s/recal/{sample}.bam.bai" % (config["project-folder"]),
+                  sample=wildcards.sample)                  
 
 def get_regions_param(regions=config["processing"].get("restrict-regions"), default=""):
     if regions:
