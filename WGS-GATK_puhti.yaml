@@ -44,7 +44,10 @@ map_reads:
     partition: small
     mem-per-cpu: 4000
     cpus-per-task: 12
-    
+  
+create_dict_file:
+    job-name:  CreateDictFile
+
 mark_duplicates:
     job-name: markdupl
     time: 05:00:00
@@ -65,3 +68,10 @@ samtools_index:
     partition: small
     mem-per-cpu: 4000
     cpus-per-task: 12
+
+call_variants:
+    time: 0-08:00:00
+    job-name: callVariants
+    
+recalibrate_base_qualities:
+    job-name: recalibrate

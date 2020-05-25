@@ -1,8 +1,8 @@
 import pandas as pd
 from snakemake.utils import validate
-from multiprocessing import cpu_count
-
-report: "report/workflow.rst"
+    from multiprocessing import cpu_count
+    
+    report: "report/workflow.rst"
 
 ###### Sample sheets #####
 #samples = pd.read_table(config["samples"]).set_index("sample", drop=False)
