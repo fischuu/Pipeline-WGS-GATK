@@ -72,10 +72,15 @@ samtools_index:
 call_variants:
     time: 0-08:00:00
     job-name: callVariants
-    
+
+combine_calls:
+    time: 1-00:00:00
+    job-name: combineCalls
+   
 genotype_variants:
     time: 1-00:00:00
     job-name: genotypeVariants
-    
+ 
+   
 recalibrate_base_qualities:
     job-name: recalibrate
