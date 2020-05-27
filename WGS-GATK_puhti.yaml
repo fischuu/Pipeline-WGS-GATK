@@ -74,7 +74,7 @@ call_variants:
     job-name: callVariants
 
 combine_calls:
-    time: 1-00:00:00
+    time: 3-00:00:00
     job-name: combineCalls
    
 genotype_variants:
