@@ -38,6 +38,7 @@ params:
     BaseRecalibrator: ""
     GenotypeGVCFs: ""
     VariantRecalibrator: ""
+    combineGVCFs: "--tmp-dir=$LOCAL_SCRATCH"
   picard:
     MarkDuplicates: "REMOVE_DUPLICATES=true TMP_DIR=$LOCAL_SCRATCH"
   trimmomatic:

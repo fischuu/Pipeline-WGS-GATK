@@ -49,6 +49,8 @@ rule combine_calls:
         gvcf=temp("%s/called/all.g.vcf.gz" % (config["project-folder"]))
     log:
         "%s/logs/gatk/combinegvcfs.log" % (config["project-folder"])
+    params:
+        extra=config["params"]["gatk"]["combineGVCFs"]
     wrapper:
         "0.27.1/bio/gatk/combinegvcfs"
 
