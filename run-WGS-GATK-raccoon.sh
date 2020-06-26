@@ -17,8 +17,9 @@ source activate /projappl/project_2001746/conda_envs/Genotype
 
 snakemake -s Snakefile \
           --configfile /scratch/project_2001746/RaccoonGATK/pipeline/WGS-GATK-pipeline_config_raccoon.yaml \
-          -j 200 \
+          -j 150 \
           --use-conda \
+          --use-singularity \
           --latency-wait 60 \
           --cluster-config WGS-GATK_puhti.yaml \
           --cluster "sbatch -t {cluster.time} --account={cluster.account}  --gres=nvme:{cluster.nvme} --gres=nvme:{cluster.nvme} --job-name={cluster.job-name} --cpus-per-task={cluster.cpus-per-task} --mem-per-cpu={cluster.mem-per-cpu} -p {cluster.partition} -D {cluster.working-directory}" $1 

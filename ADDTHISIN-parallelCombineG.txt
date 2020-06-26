@@ -1,0 +1,8 @@
+sed '/^#/d' control_1_SphI_15m_1.g.vcf > control_1_SphI_15m_1_no_header.g.vcf
+cut -f1 control_1_SphI_15m_1_no_header.g.vcf | sort | uniq > chrList.txt
+
+# Add here a function that splits the original chrList file into at most 1000 files.
+head chrList.txt > chrList.1.txt
+
+continue with tabix like
+tabix -R chrList.1.txt control_1_SphI_15m_1.g.vcf.gz > test
